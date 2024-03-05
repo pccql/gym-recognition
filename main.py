@@ -1,10 +1,23 @@
 import cv2
 import mediapipe as mp
 import numpy as np
-from helpers import calculate_angles
+from helpers import calculate_angles, get_joints_for_movement, draw_angle
 
 
-def pose_detection():
+class Exercise:
+    def __init__(self, name, start_angle, finish_angle):
+        self.name = name
+        self.start_angle = start_angle
+        self.finish_angle = finish_angle
+
+
+exercises = [
+    Exercise(name="biceps_curl", start_angle=130, finish_angle=30),
+    Exercise(name="shoulder_press", start_angle=150, finish_angle=70),
+]
+
+
+def pose_detection(exercise: Exercise):
     mp_drawing = mp.solutions.drawing_utils
     mp_pose = mp.solutions.pose
     count = 0
@@ -30,39 +43,26 @@ def pose_detection():
             try:
                 landmarks = results.pose_landmarks.landmark
 
-                shoulder = [
-                    landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
-                    landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y,
-                ]
-                elbow = [
-                    landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,
-                    landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y,
-                ]
-                wrist = [
-                    landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
-                    landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y,
-                ]
-
-                angle = calculate_angles(shoulder, elbow, wrist)
-
-                cv2.putText(
-                    image,
-                    str(angle),
-                    tuple(np.multiply(elbow, [640, 480]).astype(int)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (255, 255, 255),
-                    2,
-                    cv2.LINE_AA,
+                left_joints, right_joints = get_joints_for_movement(
+                    landmarks, mp_pose, exercise
                 )
 
-                if angle > 130:
-                    stage = "straight"
+                left_angle = calculate_angles(left_joints)
+                right_angle = calculate_angles(right_joints)
 
-                if angle < 30 and stage == "straight":
-                    stage = "bend"
+                draw_angle(image, left_angle, left_joints)
+                draw_angle(image, right_angle, right_joints)
+
+                if left_angle > exercise.start_angle:
+                    stage = "start"
+
+                if (
+                    left_angle < exercise.finish_angle
+                    and right_angle < exercise.finish_angle
+                    and stage == "start"
+                ):
+                    stage = "end"
                     count += 1
-
                     print(f"Count: {count}")
 
             except:
@@ -91,5 +91,5 @@ def pose_detection():
     return count
 
 
-res = pose_detection()
+res = pose_detection(exercises[1])
 print(f"Total Reps {res}")
