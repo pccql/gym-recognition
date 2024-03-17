@@ -14,6 +14,7 @@ class Exercise:
 exercises = [
     Exercise(name="biceps_curl", start_angle=130, finish_angle=30),
     Exercise(name="shoulder_press", start_angle=150, finish_angle=70),
+    Exercise(name="squat", start_angle=170, finish_angle=120),
 ]
 
 
@@ -53,7 +54,10 @@ def pose_detection(exercise: Exercise):
                 draw_angle(image, left_angle, left_joints)
                 draw_angle(image, right_angle, right_joints)
 
-                if left_angle > exercise.start_angle:
+                if (
+                    left_angle > exercise.start_angle
+                    and right_angle > exercise.start_angle
+                ):
                     stage = "start"
 
                 if (
@@ -91,5 +95,5 @@ def pose_detection(exercise: Exercise):
     return count
 
 
-res = pose_detection(exercises[1])
+res = pose_detection(exercises[2])
 print(f"Total Reps {res}")

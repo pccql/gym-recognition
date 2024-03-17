@@ -51,6 +51,38 @@ def get_joints_for_movement(landmarks, mp_pose, exercise):
             (right_shoulder, right_elbow, right_wrist),
         )
 
+    else:  # squat
+        left_ankle = [
+            landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x,
+            landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y,
+        ]
+        left_knee = [
+            landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x,
+            landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y,
+        ]
+        left_hip = [
+            landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,
+            landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y,
+        ]
+
+        right_ankle = [
+            landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x,
+            landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y,
+        ]
+        right_knee = [
+            landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x,
+            landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y,
+        ]
+        right_hip = [
+            landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x,
+            landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y,
+        ]
+
+        return (
+            (left_ankle, left_knee, left_hip),
+            (right_ankle, right_knee, right_hip),
+        )
+
 
 def draw_angle(image, angle, joints):
     cv2.putText(
